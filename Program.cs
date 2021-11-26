@@ -152,6 +152,10 @@ namespace exam
             DBManager dbm = new DBManager("todo.txt");
             Dictionary<string, Command> cmdToLambda = new Dictionary<string, Command>();
 
+
+            Console.WriteLine("X-pech Simple Todo.txt-like task console manager");
+            Console.WriteLine("commands: list, lspr <project>, done <id>, add <name> <project> <priority>");
+
             cmdToLambda.Add("list", (string[] args) =>
             {
                 dbm.PrintAll();
