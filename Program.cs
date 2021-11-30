@@ -21,7 +21,7 @@ namespace exam
 
         public override string ToString()
         {
-            return $"{Name} #{Project} p{Priority}";
+            return $"{Name}\t#{Project}\tp{Priority}";
         }
 
     }
@@ -31,7 +31,7 @@ namespace exam
 
         const string SupportedCharacters = "abcdefghijklmonpqrstuvwxyz";
         static Random gen = new Random();
-        Dictionary<string, Task> IdToTask;
+        Dictionary<string, Task> IdToTask; 
         string FileName { get; set; }
 
 
@@ -43,7 +43,7 @@ namespace exam
                 {
                     while (!sr.EndOfStream)
                     {
-                        string[] line = sr.ReadLine().Split(' ');
+                        string[] line = sr.ReadLine().Split('\t');
                         IdToTask.Add(line[0], new Task(line[1], line[2].Substring(1), Convert.ToInt32(line[3].Substring(1))));
                     }
                 }
@@ -61,12 +61,17 @@ namespace exam
         {
             int n = SupportedCharacters.Length;
             string res = "";
-            while (res.Length == 0 || IdToTask.ContainsKey(res))
+            int count = 0;
+                                                                                  // 17576 = 26 ^ 3 = количество различных id из 3х
+                                                                                  // строчных английских букв
+            while (res.Length == 0 || IdToTask.ContainsKey(res)) // условие с count - костыль, фу так писать
             {
+                res = ""; // Поскольку не стираются старые данные в res
                 while (res.Length < 3)
                 {
                     res += SupportedCharacters[gen.Next(n)];
                 }
+                count++;
             }
 
             return res;
@@ -74,12 +79,12 @@ namespace exam
 
         static string GetFileLine(string id, Task task)
         {
-            return id + " " + task.ToString();
+            return id + "\t" + task.ToString();
         }
 
         static string GetAlignedLine(string id, Task task)
         {
-            return $"{id} {task.Name,10} {'#' + task.Project,10} p{task.Priority,1}";
+            return $"{id}\t{task.Name,-10}\t{'#' + task.Project,-10}\tp{task.Priority,-1}";
         }
         void WriteTaskToFile(string id, Task task)
         {
@@ -110,24 +115,28 @@ namespace exam
 
         public void Done(string id)
         {
-            IdToTask.Remove(id);
-            WriteWholeBaseToFile();
-        }
-
-        public void Change(string id, string name, string project, int priority) {
-            Task task;
-            bool found = IdToTask.TryGetValue(id, out task);
-            Console.WriteLine(id);
+            bool found = IdToTask.ContainsKey(id);
             if (found) {
                 IdToTask.Remove(id);
-                IdToTask.Add(GenerateId(), new Task(name, project, priority));
-                Console.WriteLine("Задача изменена");
                 WriteWholeBaseToFile();
+                Console.WriteLine("Задача удалена");
             } else {
                 Console.WriteLine("Задача не обнаружена");
             }
         }
 
+        public void Change(string id, string name, string project, int priority) {
+            bool found = IdToTask.ContainsKey(id);
+            if (found) {
+                IdToTask[id] = new Task(name, project, priority);
+                WriteWholeBaseToFile();
+                Console.WriteLine("Задача изменена");
+            } else {
+                Console.WriteLine("Задача не обнаружена");
+            }
+        }
+
+        // оффтоп: генераторы
         public IEnumerable<string> PrintAllIterate()
         {
             foreach (string id in IdToTask.Keys)
@@ -168,7 +177,7 @@ namespace exam
 
 
             Console.WriteLine("X-pech Simple Todo.txt-like task console manager");
-            Console.WriteLine("commands: list, lspr <project>, done <id>, add <name> <project> <priority>");
+            Console.WriteLine("commands: list, lspr <project>, done <id>, add <name> <project> <priority>, change <id> <params>");
 
             cmdToLambda.Add("list", (string[] args) =>
             {
@@ -235,7 +244,7 @@ namespace exam
             while (line != "exit")
             {
                 line = Console.ReadLine();
-                string[] arguments = line.Split(' ');
+                string[] arguments = line.Split('\t');
                 line = arguments[0];
 
                 if (line == "exit")

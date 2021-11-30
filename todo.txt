@@ -1,3 +1,4 @@
-aca Domashki #step p1
-acc HWP11 #step p1
-huo shoooeees #ohuse p2
+aca	Domashki	#step	p1
+acc	HWP11	#step	p1
+huo	shoooeees	#ohuse	p2
+jlq	task haha	#csnet	p1
