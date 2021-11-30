@@ -114,6 +114,20 @@ namespace exam
             WriteWholeBaseToFile();
         }
 
+        public void Change(string id, string name, string project, int priority) {
+            Task task;
+            bool found = IdToTask.TryGetValue(id, out task);
+            Console.WriteLine(id);
+            if (found) {
+                IdToTask.Remove(id);
+                IdToTask.Add(GenerateId(), new Task(name, project, priority));
+                Console.WriteLine("Задача изменена");
+                WriteWholeBaseToFile();
+            } else {
+                Console.WriteLine("Задача не обнаружена");
+            }
+        }
+
         public IEnumerable<string> PrintAllIterate()
         {
             foreach (string id in IdToTask.Keys)
@@ -204,6 +218,16 @@ namespace exam
                 foreach (string line in dbm.PrintAllIterate())
                 {
                     Console.WriteLine(line);
+                }
+            });
+            cmdToLambda.Add("change", (string[] args) =>
+            {
+                try {
+                    dbm.Change(args[1], args[2], args[3], Convert.ToInt32(args[4]));
+                } catch (IndexOutOfRangeException) {
+                    Console.WriteLine("Недостаточно аргументов");
+                } catch (FormatException) {
+                    Console.WriteLine("Задайте корректный приоритет");
                 }
             });
 
